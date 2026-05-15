@@ -1,0 +1,378 @@
+/* =============================================================================
+   WSF Multisite Product Sync — стили страницы синхронизации по SKU
+   ============================================================================= */
+
+/* Настройки синхронизации */
+.wsf-mps-settings {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 15px 18px;
+    margin-bottom: 16px;
+}
+
+.wsf-mps-settings-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.wsf-mps-settings-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.wsf-mps-settings-row > strong {
+    width: 150px;
+    flex-shrink: 0;
+    font-size: 13px;
+    padding-top: 2px;
+}
+
+/* Список сайтов */
+.wsf-mps-sites {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+}
+
+.wsf-mps-site-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.wsf-mps-site-url {
+    font-size: 11px;
+    color: #999;
+}
+
+/* Что синхронизировать */
+.wsf-mps-what {
+    display: flex;
+    gap: 20px;
+}
+
+.wsf-mps-what label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Кнопка синхронизации */
+.wsf-mps-sync-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 16px;
+    padding: 12px 15px;
+    background: #f6f7f7;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.wsf-mps-sync-bar .wsf-mps-info {
+    font-size: 13px;
+    color: #555;
+    flex: 1;
+}
+
+.wsf-mps-sync-bar .wsf-mps-info strong {
+    color: #1d2327;
+}
+
+.wsf-mps-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #2271b1;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.wsf-mps-btn:hover:not(:disabled) {
+    background: #135e96;
+    color: #fff;
+}
+
+.wsf-mps-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.wsf-mps-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: wsf-mps-spin 0.7s linear infinite;
+}
+
+.wsf-mps-btn.loading .wsf-mps-spinner {
+    display: inline-block;
+}
+
+@keyframes wsf-mps-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Список товаров источника */
+.wsf-mps-source-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #f0f0f1;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.wsf-mps-source-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 8px;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.wsf-mps-source-list li:last-child {
+    border-bottom: none;
+}
+
+/* Блок с названием и категориями */
+.wsf-mps-product-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.wsf-mps-product-title {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Ссылки-теги категорий под названием товара */
+.wsf-mps-cat-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 3px;
+}
+
+.wsf-mps-cat-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: #e8f0fe;
+    color: #1a4a8a;
+    border: 1px solid #c2d4f5;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1.6;
+}
+
+a.wsf-mps-cat-tag:hover {
+    background: #c2d4f5;
+    text-decoration: none;
+}
+
+/* Ссылка на выбранную категорию в заголовке */
+.wsf-mps-cat-view-link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed currentColor;
+}
+
+.wsf-mps-cat-view-link:hover {
+    color: #2271b1;
+    border-bottom-color: #2271b1;
+}
+
+.wsf-mps-ext-icon {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.wsf-mps-sku {
+    font-family: monospace;
+    font-size: 11px;
+    background: #f0f0f1;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #555;
+    flex-shrink: 0;
+    min-width: 80px;
+}
+
+.wsf-mps-sku.no-sku {
+    color: #d63638;
+    background: #fce8e8;
+}
+
+.wsf-mps-product-meta {
+    font-size: 11px;
+    color: #999;
+    flex-shrink: 0;
+}
+
+/* Результаты синхронизации */
+.wsf-mps-results-summary {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.wsf-mps-stat-box {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.wsf-mps-stat-num {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.wsf-mps-stat-lbl {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.wsf-mps-stat-synced  .wsf-mps-stat-num { color: #00a32a; }
+.wsf-mps-stat-skipped .wsf-mps-stat-num { color: #888; }
+.wsf-mps-stat-nf      .wsf-mps-stat-num { color: #d63638; }
+
+/* Аккордеон по сайту */
+.wsf-mps-site-block {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.wsf-mps-site-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    cursor: pointer;
+    background: #f6f7f7;
+    user-select: none;
+}
+
+.wsf-mps-site-header:hover {
+    background: #f0f0f1;
+}
+
+.wsf-mps-site-name {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+}
+
+.wsf-mps-site-badge {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.wsf-mps-badge-synced  { background: #d4edda; color: #155724; }
+.wsf-mps-badge-skipped { background: #e2e3e5; color: #383d41; }
+.wsf-mps-badge-nf      { background: #f8d7da; color: #721c24; }
+
+.wsf-mps-site-toggle {
+    font-size: 11px;
+    color: #666;
+    transition: transform 0.15s;
+}
+
+.wsf-mps-site-block.open .wsf-mps-site-toggle {
+    transform: rotate(90deg);
+}
+
+.wsf-mps-site-details {
+    display: none;
+    border-top: 1px solid #e2e4e7;
+}
+
+.wsf-mps-site-block.open .wsf-mps-site-details {
+    display: block;
+}
+
+/* Таблица деталей по товарам */
+.wsf-mps-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.wsf-mps-detail-table th {
+    background: #f9f9f9;
+    padding: 5px 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+}
+
+.wsf-mps-detail-table td {
+    padding: 4px 10px;
+    border-bottom: 1px solid #f5f5f5;
+    vertical-align: middle;
+}
+
+.wsf-mps-detail-table tr:last-child td {
+    border-bottom: none;
+}
+
+.wsf-mps-row-synced  td:first-child { border-left: 3px solid #00a32a; }
+.wsf-mps-row-skipped td:first-child { border-left: 3px solid #ccd0d4; }
+.wsf-mps-row-not_found td:first-child { border-left: 3px solid #d63638; }
+
+.wsf-mps-detail-sku {
+    font-family: monospace;
+    font-size: 11px;
+    background: #f0f0f1;
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+.wsf-mps-detail-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.wsf-mps-detail-msg {
+    color: #777;
+}

@@ -1,0 +1,237 @@
+/* =============================================================================
+   WSF Sync — дополнительные стили страницы синхронизации атрибутов
+   ============================================================================= */
+
+/* Кнопка синхронизации */
+.wsf-sync-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 15px 0;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #00a32a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.wsf-sync-btn:hover:not(:disabled) {
+    background: #008a20;
+    color: #fff;
+}
+
+.wsf-sync-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.wsf-sync-btn .wsf-sync-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: wsf-spin 0.7s linear infinite;
+}
+
+.wsf-sync-btn.loading .wsf-sync-spinner {
+    display: inline-block;
+}
+
+@keyframes wsf-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Блок с атрибутами связки */
+.wsf-sync-binding-attrs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 0;
+}
+
+.wsf-sync-attr-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: #e8f0fe;
+    border: 1px solid #a8c5e8;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #1a4a8a;
+}
+
+.wsf-sync-attr-tag strong {
+    font-weight: 600;
+}
+
+/* Статистика */
+.wsf-sync-stats {
+    display: flex;
+    gap: 12px;
+    margin: 15px 0;
+}
+
+.wsf-sync-stat {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.wsf-sync-stat-needs {
+    background: #fcf9e8;
+    border: 1px solid #d5c60a;
+}
+
+.wsf-sync-stat-ok {
+    background: #f0faf0;
+    border: 1px solid #7aba7b;
+}
+
+.wsf-sync-stat-count {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.wsf-sync-stat-needs .wsf-sync-stat-count { color: #8a6a00; }
+.wsf-sync-stat-ok    .wsf-sync-stat-count { color: #00a32a; }
+
+.wsf-sync-stat-label {
+    display: block;
+    font-size: 12px;
+    color: #555;
+    margin-top: 3px;
+}
+
+/* Список товаров нуждающихся в синхронизации */
+.wsf-sync-needs-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #f0f0f1;
+    border-radius: 3px;
+}
+
+.wsf-sync-needs-list li {
+    padding: 6px 10px;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 13px;
+}
+
+.wsf-sync-needs-list li:last-child {
+    border-bottom: none;
+}
+
+.wsf-sync-needs-list a {
+    text-decoration: none;
+    color: #2271b1;
+}
+
+.wsf-sync-needs-list a:hover {
+    text-decoration: underline;
+}
+
+.wsf-sync-missing-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 3px;
+}
+
+.wsf-sync-missing-tag {
+    font-size: 11px;
+    background: #fef3cd;
+    border: 1px solid #f0ad4e;
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: #856404;
+}
+
+/* Результаты синхронизации */
+.wsf-sync-result-box {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.wsf-sync-result-box h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+}
+
+.wsf-sync-result-summary {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    background: #f0faf0;
+    border: 1px solid #7aba7b;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.wsf-sync-result-summary strong {
+    color: #00a32a;
+}
+
+.wsf-sync-result-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #f0f0f1;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.wsf-sync-result-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 10px;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.wsf-sync-result-list li:last-child {
+    border-bottom: none;
+}
+
+.wsf-sync-status {
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    padding: 1px 7px;
+    border-radius: 10px;
+}
+
+.wsf-status-synced  { background: #d4edda; color: #155724; }
+.wsf-status-skipped { background: #e2e3e5; color: #383d41; }
+.wsf-status-error   { background: #f8d7da; color: #721c24; }
+
+.wsf-sync-result-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wsf-sync-result-msg {
+    font-size: 11px;
+    color: #777;
+    flex-shrink: 0;
+}

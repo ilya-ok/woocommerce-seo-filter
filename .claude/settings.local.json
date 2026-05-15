@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npx gulp)",
+      "Bash(npx gulp:*)",
+      "Bash(ls:*)",
+      "Bash(npm run gulp:*)",
+      "Bash(gulp scripts:*)",
+      "Bash(gulp build:*)",
+      "Bash(php:*)",
+      "Bash(gulp styles:*)",
+      "Bash(tree:*)",
+      "Bash(echo:*)",
+      "Bash(powershell -Command \"Get-Content ''C:\\\\Users\\\\KMSCOMP7\\\\.claude\\\\projects\\\\c--xampp2-htdocs-theme-wp-content-plugins-WooCommerce-SEO-Filter-claude\\\\1763590f-bd7d-4615-80ad-6084c5696f74.jsonl'' -Tail 100\")",
+      "Read(//c/xampp2/htdocs/sportshop/wp-content/themes/sportshop/**)",
+      "Bash(findstr:*)",
+      "Bash(python3:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -File:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(# Check if WooCommerce has built-in blocks \\(since WC 9.x it includes blocks by default\\) ls \"\"c:/xampp2/htdocs/sportshop/wp-content/plugins/woocommerce/src/Blocks/\"\")",
+      "Bash(# Check if WC has a function to detect blocks vs classic checkout grep -rn \"\"is_blocks_checkout\\\\|use_blocks_checkout\\\\|classic_shortcode\\\\|ClassicCheckout\"\" \"\"c:/xampp2/htdocs/sportshop/wp-content/plugins/woocommerce/src/\"\" --include=\"\"*.php\"\" -l)",
+      "Bash(node -e:*)",
+      "Bash(find:*)",
+      "Bash(test:*)",
+      "Bash(dir /s /b \"c:\\\\xampp2\\\\htdocs\\\\sportshop\\\\wp-content\\\\plugins\\\\custom-prices-woocommerce\"\")",
+      "Bash(wp term list:*)",
+      "Bash(curl:*)",
+      "Bash(del \"c:\\\\xampp2\\\\htdocs\\\\sportshop\\\\wp-content\\\\themes\\\\sportshop\\\\js\\\\customizer.js\")",
+      "Bash(del \"c:\\\\xampp2\\\\htdocs\\\\sportshop\\\\wp-content\\\\themes\\\\sportshop\\\\js\\\\navigation.js\")",
+      "Bash(if [ -f \"c:\\\\xampp2\\\\htdocs\\\\sportshop\\\\wp-content\\\\themes\\\\sportshop\\\\screenshot.png\" ])",
+      "Bash(then cp \"c:\\\\xampp2\\\\htdocs\\\\sportshop\\\\wp-content\\\\themes\\\\sportshop\\\\screenshot.png\" \"c:\\\\xampp2\\\\htdocs\\\\sportshop\\\\wp-content\\\\themes\\\\sportshop-child\\\\screenshot.png\")",
+      "Bash(else echo \"No screenshot found in parent theme\")",
+      "Bash(fi)",
+      "Bash(wp theme list:*)",
+      "Bash(if [ -f \"c:\\\\xampp2\\\\htdocs\\\\theme\\\\wp-config.php\" ])",
+      "Bash(then grep \"MULTISITE\" \"c:\\\\xampp2\\\\htdocs\\\\theme\\\\wp-config.php\")",
+      "Bash(else echo \"wp-config.php not found\")",
+      "Bash(dir:*)"
+    ]
+  }
+}

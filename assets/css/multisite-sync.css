@@ -1,0 +1,223 @@
+/**
+ * Стили для страницы синхронизации мультисайта
+ * WooCommerce SEO Filter - Multisite Sync
+ */
+
+/* Основной контейнер */
+.wsf-sync-section {
+    background: #fff;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.wsf-sync-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.wsf-sync-section h3 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.wsf-sync-section p.description {
+    color: #646970;
+    margin-bottom: 15px;
+}
+
+/* Сетка сайтов */
+.wsf-sites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+.wsf-site-checkbox {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 15px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wsf-site-checkbox:hover {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.wsf-site-checkbox input[type="checkbox"] {
+    margin-right: 8px;
+    margin-bottom: 5px;
+}
+
+.wsf-site-checkbox input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+}
+
+.wsf-site-checkbox strong {
+    font-size: 14px;
+    color: #1d2327;
+    margin-bottom: 4px;
+}
+
+.wsf-site-url {
+    font-size: 12px;
+    color: #646970;
+    font-family: monospace;
+    margin-top: 4px;
+}
+
+.wsf-site-checkbox:has(input:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #f6f7f7;
+}
+
+/* Кнопки */
+.wsf-sync-section .button {
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+.wsf-sync-section .button .dashicons {
+    margin-top: 3px;
+    margin-right: 5px;
+}
+
+/* Статус синхронизации */
+.wsf-sync-status {
+    margin: 20px 0;
+    padding: 15px;
+    border-left: 4px solid #72aee6;
+    background: #f0f6fc;
+    border-radius: 0 4px 4px 0;
+}
+
+.wsf-sync-status.success {
+    border-left-color: #00a32a;
+    background: #f0f6fc;
+}
+
+.wsf-sync-status.error {
+    border-left-color: #d63638;
+    background: #fcf0f1;
+}
+
+.wsf-sync-status.warning {
+    border-left-color: #dba617;
+    background: #fcf9e8;
+}
+
+.wsf-sync-status h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.wsf-sync-status ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.wsf-sync-status li {
+    margin: 5px 0;
+}
+
+/* Информация о синхронизации */
+.wsf-sync-info {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+.wsf-sync-info li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.wsf-sync-info li:last-child {
+    border-bottom: none;
+}
+
+.wsf-sync-info .dashicons {
+    color: #00a32a;
+    margin-right: 8px;
+}
+
+.wsf-sync-info strong {
+    color: #1d2327;
+}
+
+/* Селекты */
+.wsf-sync-section select.regular-text {
+    max-width: 600px;
+}
+
+/* Loading состояние */
+.wsf-sync-section .button.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.wsf-sync-section .button.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: wsf-spin 0.6s linear infinite;
+}
+
+@keyframes wsf-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Адаптивность */
+@media screen and (max-width: 782px) {
+    .wsf-sites-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wsf-sync-section {
+        padding: 15px;
+    }
+
+    .wsf-sync-section .button {
+        display: block;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+}
+
+/* Notice стили */
+.wsf-sync-section .notice {
+    margin: 15px 0;
+    padding: 12px;
+}
+
+.wsf-sync-section .notice p {
+    margin: 0.5em 0;
+}
