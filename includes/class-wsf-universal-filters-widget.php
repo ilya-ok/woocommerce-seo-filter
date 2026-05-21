@@ -63,11 +63,19 @@ class WSF_Universal_Filters_Widget extends WP_Widget {
         // Получаем название атрибута
         $attribute_label = $this->get_attribute_label($attribute);
         
-        echo '<div class="wsf-filter-section" data-attribute="' . esc_attr($attribute) . '">';
-        echo '<h3 class="wsf-filter-title">' . esc_html($attribute_label) . '</h3>';
-        
+        $collapsed_attributes = get_option('wsf_collapsed_attributes', []);
+        $is_collapsed = in_array($attribute, $collapsed_attributes, true) ? ' wsf-filter-collapsed' : '';
+
+        echo '<div class="wsf-filter-section wsf-filter-collapsible' . esc_attr($is_collapsed) . '" data-attribute="' . esc_attr($attribute) . '">';
+        echo '<button type="button" class="wsf-filter-toggle">';
+        echo '<span class="wsf-filter-toggle-title">' . esc_html($attribute_label) . '</span>';
+        echo '<span class="wsf-filter-toggle-icon"></span>';
+        echo '</button>';
+        echo '<div class="wsf-filter-collapsible-body">';
+
         $this->render_filter($attribute, $attribute_values, $current_category_slug, $current_params, $display_type);
-        
+
+        echo '</div>';
         echo '</div>';
     }
     
@@ -141,10 +149,10 @@ class WSF_Universal_Filters_Widget extends WP_Widget {
     private function get_filter_product_count($attribute, $value, $current_category_slug = '') {
         $cache = WSF_Cache_Manager::get_instance();
         $current_params = $_GET;
-        
+
         // Создаём ключ кэша
         $cache_key = $cache->get_product_count_cache_key($attribute, $value, $current_category_slug, $current_params);
-        
+
         // Проверяем кэш
         $cached_count = $cache->get($cache_key);
         if (false !== $cached_count) {
@@ -166,26 +174,41 @@ class WSF_Universal_Filters_Widget extends WP_Widget {
         
         // Добавляем текущую категорию если есть
         if ($current_category_slug) {
-            $category = get_term_by('slug', $current_category_slug, 'product_cat');
-            if ($category) {
-                $args['tax_query'][] = [
-                    'taxonomy' => 'product_cat',
-                    'field' => 'term_id',
-                    'terms' => $category->term_id,
-                ];
-            }
-            
-            // Добавляем атрибуты текущей SEO-категории
             $binding_manager = WSF_Binding_Manager::get_instance();
             $binding = $binding_manager->get_binding_by_slug($current_category_slug);
-            
+
+            // Если binding содержит тот же атрибут что мы считаем — используем родительскую
+            // категорию и пропускаем binding-ограничение для этого атрибута (multi-select case).
+            $binding_has_same_attr = false;
             if ($binding && !empty($binding['attributes'])) {
-                foreach ($binding['attributes'] as $attr) {
+                foreach ($binding['attributes'] as $ba) {
+                    if ($ba['attribute'] === $attribute) {
+                        $binding_has_same_attr = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($binding_has_same_attr) {
+                // Атрибут закодирован в SEO-категории — считаем без ограничения по категории,
+                // иначе siblings дают 0 (их товары в других категориях того же уровня).
+            } else {
+                $category = get_term_by('slug', $current_category_slug, 'product_cat');
+                if ($category) {
                     $args['tax_query'][] = [
-                        'taxonomy' => 'pa_' . $attr['attribute'],
-                        'field' => 'slug',
-                        'terms' => $attr['value'],
+                        'taxonomy' => 'product_cat',
+                        'field' => 'term_id',
+                        'terms' => $category->term_id,
                     ];
+                }
+                if ($binding && !empty($binding['attributes'])) {
+                    foreach ($binding['attributes'] as $attr_item) {
+                        $args['tax_query'][] = [
+                            'taxonomy' => 'pa_' . $attr_item['attribute'],
+                            'field' => 'slug',
+                            'terms' => $attr_item['value'],
+                        ];
+                    }
                 }
             }
         }
@@ -215,7 +238,14 @@ class WSF_Universal_Filters_Widget extends WP_Widget {
         
         $query = new WP_Query($args);
         $count = $query->found_posts;
-        
+
+        // DEBUG TEMP
+        if ($attribute === 'vysota-vorsa' && in_array($value, ['12-mm', '10-mm'])) {
+            file_put_contents('C:/xampp2/htdocs/wsf_debug.txt',
+                "val=$value count=$count cached=NO tq=" . json_encode($args['tax_query']) . "\n",
+                FILE_APPEND);
+        }
+
         // Сохраняем в кэш
         $cache->set($cache_key, $count);
         
@@ -260,28 +290,45 @@ class WSF_Universal_Filters_Widget extends WP_Widget {
             return $a['_pos'] - $b['_pos'];
         });
 
+        // Если атрибут "заблокирован" в binding текущей категории (напр. vysota-vorsa на /10-mm-gazon/),
+        // его другие значения должны быть кликабельны для multi-select, даже если count=0.
+        $attr_in_current_binding = false;
+        if ($current_category_slug) {
+            $bm = WSF_Binding_Manager::get_instance();
+            $cur_binding = $bm->get_binding_by_slug($current_category_slug);
+            if ($cur_binding && !empty($cur_binding['attributes'])) {
+                foreach ($cur_binding['attributes'] as $_ba) {
+                    if ($_ba['attribute'] === $attribute) {
+                        $attr_in_current_binding = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         echo '<ul class="wsf-filter-list">';
 
         foreach ($values as $value) {
             $is_active = in_array($value['slug'], $active_filters);
             $has_products = $value['count'] > 0;
+            $is_clickable = $has_products || $is_active || $attr_in_current_binding;
             $filter_manager = WSF_Filter_Manager::get_instance();
-            
+
             $url = $filter_manager->get_filter_url(
                 $attribute,
                 $value['slug'],
                 $current_category_slug,
                 $current_params
             );
-            
+
             $class = $is_active ? 'wsf-filter-item active' : 'wsf-filter-item';
             if (!$has_products && !$is_active) {
                 $class .= ' disabled';
             }
-            
-            echo '<li class="' . esc_attr($class) . '">';
-            
-            if ($has_products || $is_active) {
+
+            echo '<li class="' . esc_attr($class) . '" data-slug="' . esc_attr($value['slug']) . '" data-count="' . intval($value['count']) . '">';
+
+            if ($is_clickable) {
                 echo '<a href="' . esc_url($url) . '">';
             } else {
                 echo '<span class="wsf-filter-link-disabled">';
@@ -296,7 +343,7 @@ class WSF_Universal_Filters_Widget extends WP_Widget {
             echo esc_html($value['name']);
             echo ' <span class="wsf-filter-count">(' . $value['count'] . ')</span>';
             
-            if ($has_products || $is_active) {
+            if ($is_clickable) {
                 echo '</a>';
             } else {
                 echo '</span>';

@@ -13,6 +13,9 @@ $is_shop = ($category_slug === 'shop');
 // Получаем атрибуты для меток
 $category_badge_attrs = get_option('wsf_category_badge_attributes', []);
 $selected_badge_attrs = isset($category_badge_attrs[$category_slug]) ? $category_badge_attrs[$category_slug] : [];
+
+// Глобальная настройка скрытых по умолчанию атрибутов
+$collapsed_attributes = get_option('wsf_collapsed_attributes', []);
 ?>
 
 <div class="wsf-category-item" data-category-slug="<?php echo esc_attr($category_slug); ?>">
@@ -57,6 +60,10 @@ $selected_badge_attrs = isset($category_badge_attrs[$category_slug]) ? $category
                         <div class="wsf-attribute-item" data-attr-slug="<?php echo esc_attr($attr_slug); ?>">
                             <span class="wsf-attribute-handle dashicons dashicons-menu"></span>
                             <span class="wsf-attribute-name"><?php echo esc_html($attr_name); ?></span>
+                            <label class="wsf-attr-collapsed-label">
+                                <input type="checkbox" class="wsf-attr-collapsed-checkbox" value="<?php echo esc_attr($attr_slug); ?>" <?php checked(in_array($attr_slug, $collapsed_attributes, true)); ?>>
+                                скрыт по умолчанию
+                            </label>
                             <input type="hidden" name="category_available_attributes[<?php echo esc_attr($category_slug); ?>][]" value="<?php echo esc_attr($attr_slug); ?>">
                             <button type="button" class="button-link wsf-remove-attribute-btn">
                                 <span class="dashicons dashicons-trash"></span>

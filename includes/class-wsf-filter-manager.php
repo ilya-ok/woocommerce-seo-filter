@@ -69,7 +69,98 @@ class WSF_Filter_Manager {
         
         // Добавляем новый выбранный атрибут
         $new_attributes[] = ['attribute' => $attribute, 'value' => $value];
-        
+
+        // Если у этого атрибута уже есть значения в query params, не ищем binding —
+        // просто добавляем к query params, чтобы не уходить на SEO-категорию с чужими значениями.
+        $filter_key_check = 'filter_' . $attribute;
+        if (isset($current_params[$filter_key_check])) {
+            $new_params = $current_params;
+            $existing_values = explode(',', $new_params[$filter_key_check]);
+            if (!in_array($value, $existing_values)) {
+                $existing_values[] = $value;
+                $new_params[$filter_key_check] = implode(',', $existing_values);
+            }
+            $base_url = $current_category_slug
+                ? $binding_manager->get_category_url($current_category_slug)
+                : wc_get_page_permalink('shop');
+            return add_query_arg($new_params, $base_url);
+        }
+
+        // Если добавляемый атрибут уже закодирован в текущей SEO-категории (binding),
+        // уходим на родительскую категорию и добавляем ОБА значения как query params.
+        if ($current_category_slug) {
+            $current_binding = $binding_manager->get_binding_by_slug($current_category_slug);
+            if ($current_binding && !empty($current_binding['attributes'])) {
+                $binding_value_for_attr = null;
+                foreach ($current_binding['attributes'] as $ba) {
+                    if ($ba['attribute'] === $attribute) {
+                        $binding_value_for_attr = $ba['value'];
+                        break;
+                    }
+                }
+                if ($binding_value_for_attr !== null) {
+                    // Оба значения одного атрибута — идём на родителя с query params
+                    $parent_slug = !empty($current_binding['parent_slug']) ? $current_binding['parent_slug'] : null;
+                    $base_url = $parent_slug
+                        ? $binding_manager->get_category_url($parent_slug)
+                        : wc_get_page_permalink('shop');
+                    // Определяем атрибуты родительской категории (чтобы не дублировать)
+                    $parent_binding_attrs = [];
+                    if ($parent_slug) {
+                        $parent_binding = $binding_manager->get_binding_by_slug($parent_slug);
+                        if ($parent_binding && !empty($parent_binding['attributes'])) {
+                            foreach ($parent_binding['attributes'] as $pba) {
+                                $parent_binding_attrs[$pba['attribute']] = $pba['value'];
+                            }
+                        }
+                    }
+                    // Собираем атрибуты текущего binding (кроме кликнутого)
+                    $current_binding_attrs = [];
+                    foreach ($current_binding['attributes'] as $ba) {
+                        if ($ba['attribute'] !== $attribute) {
+                            $current_binding_attrs[$ba['attribute']] = $ba['value'];
+                        }
+                    }
+
+                    $query_params = [];
+                    foreach ($current_params as $k => $v) {
+                        if (strpos($k, 'filter_') === 0) {
+                            $param_attr = substr($k, strlen('filter_'));
+                            // Пропускаем атрибут кликнутого фильтра (добавим ниже с новым значением)
+                            if ($param_attr === $attribute) continue;
+                            // Пропускаем атрибуты, которые parent binding уже кодирует
+                            if (isset($parent_binding_attrs[$param_attr])) continue;
+                            // Пропускаем атрибуты из текущего binding — добавим их ниже
+                            if (isset($current_binding_attrs[$param_attr])) continue;
+                            $query_params[$k] = $v;
+                        } elseif (strpos($k, 'query_type_') === 0) {
+                            $param_attr = substr($k, strlen('query_type_'));
+                            if ($param_attr === $attribute) continue;
+                            if (isset($parent_binding_attrs[$param_attr])) continue;
+                            if (isset($current_binding_attrs[$param_attr])) continue;
+                            $query_params[$k] = $v;
+                        } else {
+                            $query_params[$k] = $v;
+                        }
+                    }
+                    // Кликнутый атрибут: binding-значение + новое
+                    $query_params[$filter_key_check] = $binding_value_for_attr . ',' . $value;
+                    $query_params['query_type_' . $attribute] = 'or';
+                    // Остальные атрибуты из binding — только если parent не кодирует
+                    foreach ($current_binding_attrs as $ba_attr => $ba_val) {
+                        if (isset($parent_binding_attrs[$ba_attr]) && $parent_binding_attrs[$ba_attr] === $ba_val) continue;
+                        $fk = 'filter_' . $ba_attr;
+                        $qtk = 'query_type_' . $ba_attr;
+                        if (!isset($query_params[$fk])) {
+                            $query_params[$fk] = $ba_val;
+                            $query_params[$qtk] = 'or';
+                        }
+                    }
+                    return add_query_arg($query_params, $base_url);
+                }
+            }
+        }
+
         // Ищем точное совпадение
         $matching_binding = $binding_manager->get_binding_by_attributes($new_attributes);
         
@@ -84,8 +175,15 @@ class WSF_Filter_Manager {
             return $binding_manager->get_category_url($matching_binding['category_slug'], $filtered_params);
         }
         
-        // Если точного совпадения нет, ищем частичное
-        $partial_match = $this->find_partial_match_category($new_attributes);
+        // Если точного совпадения нет, ищем частичное —
+        // но только если нет атрибута с несколькими значениями (иначе binding не может их кодировать)
+        $attr_value_counts = [];
+        foreach ($new_attributes as $na) {
+            $attr_value_counts[$na['attribute']] = ($attr_value_counts[$na['attribute']] ?? 0) + 1;
+        }
+        $has_multi_value_attr = max($attr_value_counts) > 1;
+
+        $partial_match = $has_multi_value_attr ? null : $this->find_partial_match_category($new_attributes);
         
         if ($partial_match) {
             // Нашли категорию с частью атрибутов

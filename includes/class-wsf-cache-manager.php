@@ -10,6 +10,7 @@ class WSF_Cache_Manager {
     private static $runtime_cache = [];
     const CACHE_GROUP = 'wsf_filters';
     const CACHE_EXPIRATION = 3600; // 1 час
+    const CACHE_VERSION = 2; // Увеличить при изменении логики подсчёта
     
     private function __construct() {
         add_action('save_post', [$this, 'clear_product_cache']);
@@ -47,7 +48,6 @@ class WSF_Cache_Manager {
     public function set($key, $data, $group = self::CACHE_GROUP, $expiration = self::CACHE_EXPIRATION) {
         $runtime_key = $group . '_' . $key;
         self::$runtime_cache[$runtime_key] = $data;
-        
         return wp_cache_set($key, $data, $group, $expiration);
     }
     
@@ -89,7 +89,7 @@ class WSF_Cache_Manager {
     }
     
     public function get_product_count_cache_key($attribute, $value, $category_slug, $query_params) {
-        return 'count_' . md5(serialize([
+        return 'count_v' . self::CACHE_VERSION . '_' . md5(serialize([
             'attr' => $attribute,
             'val' => $value,
             'cat' => $category_slug,

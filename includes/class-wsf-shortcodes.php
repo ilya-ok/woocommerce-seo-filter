@@ -166,7 +166,7 @@ class WSF_Shortcodes {
                 
                 $class = $is_active ? 'wsf-filter-item active' : 'wsf-filter-item';
                 
-                echo '<li class="' . esc_attr($class) . '">';
+                echo '<li class="' . esc_attr($class) . '" data-slug="' . esc_attr($value['slug']) . '" data-count="' . intval($value['count']) . '">';
                 echo '<a href="' . esc_url($url) . '">';
                 
                 if ($is_active) {

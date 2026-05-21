@@ -165,7 +165,7 @@ class WSF_Badges_Widget extends WP_Widget {
             }
 
             if ($has_products || $is_active) {
-                echo '<a href="' . esc_url($url) . '" class="' . esc_attr($badge_class) . '">';
+                echo '<a href="' . esc_url($url) . '" class="' . esc_attr($badge_class) . '" data-slug="' . esc_attr($value['slug']) . '" data-count="' . intval($value['count']) . '">';
                 echo esc_html($value['name']);
                 echo ' <span class="wsf-badge-count">(' . $value['count'] . ')</span>';
                 echo '</a>';
@@ -229,25 +229,38 @@ class WSF_Badges_Widget extends WP_Widget {
         ];
         
         if ($current_category_slug) {
-            $category = get_term_by('slug', $current_category_slug, 'product_cat');
-            if ($category) {
-                $args['tax_query'][] = [
-                    'taxonomy' => 'product_cat',
-                    'field' => 'term_id',
-                    'terms' => $category->term_id,
-                ];
-            }
-            
             $binding_manager = WSF_Binding_Manager::get_instance();
             $binding = $binding_manager->get_binding_by_slug($current_category_slug);
-            
+
+            $binding_has_same_attr = false;
             if ($binding && !empty($binding['attributes'])) {
-                foreach ($binding['attributes'] as $attr) {
+                foreach ($binding['attributes'] as $ba) {
+                    if ($ba['attribute'] === $attribute) {
+                        $binding_has_same_attr = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($binding_has_same_attr) {
+                // Считаем без ограничения по категории — siblings в других категориях того же уровня.
+            } else {
+                $category = get_term_by('slug', $current_category_slug, 'product_cat');
+                if ($category) {
                     $args['tax_query'][] = [
-                        'taxonomy' => 'pa_' . $attr['attribute'],
-                        'field' => 'slug',
-                        'terms' => $attr['value'],
+                        'taxonomy' => 'product_cat',
+                        'field' => 'term_id',
+                        'terms' => $category->term_id,
                     ];
+                }
+                if ($binding && !empty($binding['attributes'])) {
+                    foreach ($binding['attributes'] as $attr_item) {
+                        $args['tax_query'][] = [
+                            'taxonomy' => 'pa_' . $attr_item['attribute'],
+                            'field' => 'slug',
+                            'terms' => $attr_item['value'],
+                        ];
+                    }
                 }
             }
         }

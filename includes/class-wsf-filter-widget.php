@@ -18,37 +18,48 @@ class WSF_Filter_Widget extends WP_Widget {
         if (!is_shop() && !is_product_category()) {
             return;
         }
-        
+
         $attribute = !empty($instance['attribute']) ? $instance['attribute'] : '';
         $title = !empty($instance['title']) ? $instance['title'] : '';
         $display_type = !empty($instance['display_type']) ? $instance['display_type'] : 'list';
-        
+
         if (empty($attribute)) {
             return;
         }
-        
+
         $current_category_slug = '';
         $current_params = $_GET;
-        
+
         if (is_product_category()) {
             $current_term = get_queried_object();
             $current_category_slug = $current_term->slug;
         }
-        
+
         $attribute_values = $this->get_attribute_values($attribute, $current_category_slug);
-        
+
         if (empty($attribute_values)) {
             return;
         }
-        
+
         echo $args['before_widget'];
-        
+
         if ($title) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            $collapsed_attributes = get_option('wsf_collapsed_attributes', []);
+            $is_collapsed = in_array($attribute, $collapsed_attributes, true) ? ' wsf-filter-collapsed' : '';
+
+            echo '<div class="wsf-filter-collapsible' . esc_attr($is_collapsed) . '">';
+            echo '<button type="button" class="wsf-filter-toggle">';
+            echo '<span class="wsf-filter-toggle-title">' . esc_html($title) . '</span>';
+            echo '<span class="wsf-filter-toggle-icon"></span>';
+            echo '</button>';
+            echo '<div class="wsf-filter-collapsible-body">';
+            $this->render_filter($attribute, $attribute_values, $current_category_slug, $current_params, $display_type);
+            echo '</div>';
+            echo '</div>';
+        } else {
+            $this->render_filter($attribute, $attribute_values, $current_category_slug, $current_params, $display_type);
         }
-        
-        $this->render_filter($attribute, $attribute_values, $current_category_slug, $current_params, $display_type);
-        
+
         echo $args['after_widget'];
     }
     
@@ -146,26 +157,38 @@ class WSF_Filter_Widget extends WP_Widget {
         
         // Добавляем текущую категорию если есть
         if ($current_category_slug) {
-            $category = get_term_by('slug', $current_category_slug, 'product_cat');
-            if ($category) {
-                $args['tax_query'][] = [
-                    'taxonomy' => 'product_cat',
-                    'field' => 'term_id',
-                    'terms' => $category->term_id,
-                ];
-            }
-            
-            // Добавляем атрибуты текущей SEO-категории
             $binding_manager = WSF_Binding_Manager::get_instance();
             $binding = $binding_manager->get_binding_by_slug($current_category_slug);
-            
+
+            $binding_has_same_attr = false;
             if ($binding && !empty($binding['attributes'])) {
-                foreach ($binding['attributes'] as $attr) {
+                foreach ($binding['attributes'] as $ba) {
+                    if ($ba['attribute'] === $attribute) {
+                        $binding_has_same_attr = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($binding_has_same_attr) {
+                // Считаем без ограничения по категории — siblings в других категориях того же уровня.
+            } else {
+                $category = get_term_by('slug', $current_category_slug, 'product_cat');
+                if ($category) {
                     $args['tax_query'][] = [
-                        'taxonomy' => 'pa_' . $attr['attribute'],
-                        'field' => 'slug',
-                        'terms' => $attr['value'],
+                        'taxonomy' => 'product_cat',
+                        'field' => 'term_id',
+                        'terms' => $category->term_id,
                     ];
+                }
+                if ($binding && !empty($binding['attributes'])) {
+                    foreach ($binding['attributes'] as $attr_item) {
+                        $args['tax_query'][] = [
+                            'taxonomy' => 'pa_' . $attr_item['attribute'],
+                            'field' => 'slug',
+                            'terms' => $attr_item['value'],
+                        ];
+                    }
                 }
             }
         }
@@ -217,51 +240,66 @@ class WSF_Filter_Widget extends WP_Widget {
     }
     
     private function render_list($attribute, $values, $current_category_slug, $current_params, $active_filters) {
+        $attr_in_current_binding = false;
+        if ($current_category_slug) {
+            $bm = WSF_Binding_Manager::get_instance();
+            $cur_binding = $bm->get_binding_by_slug($current_category_slug);
+            if ($cur_binding && !empty($cur_binding['attributes'])) {
+                foreach ($cur_binding['attributes'] as $_ba) {
+                    if ($_ba['attribute'] === $attribute) {
+                        $attr_in_current_binding = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         echo '<ul class="wsf-filter-list">';
-        
+
         foreach ($values as $value) {
             $is_active = in_array($value['slug'], $active_filters);
             $has_products = $value['count'] > 0;
+            $is_clickable = $has_products || $is_active || $attr_in_current_binding;
             $filter_manager = WSF_Filter_Manager::get_instance();
-            
+
             $url = $filter_manager->get_filter_url(
                 $attribute,
                 $value['slug'],
                 $current_category_slug,
                 $current_params
             );
-            
+
             $class = $is_active ? 'wsf-filter-item active' : 'wsf-filter-item';
             if (!$has_products && !$is_active) {
                 $class .= ' disabled';
             }
-            
-            echo '<li class="' . esc_attr($class) . '">';
-            
-            if ($has_products || $is_active) {
+
+            echo '<li class="' . esc_attr($class) . '" data-slug="' . esc_attr($value['slug']) . '" data-count="' . intval($value['count']) . '">';
+
+            if ($is_clickable) {
                 echo '<a href="' . esc_url($url) . '">';
             } else {
                 echo '<span class="wsf-filter-link-disabled">';
             }
-            
+
             if ($is_active) {
                 echo '<span class="wsf-checkbox checked">✓</span>';
             } else {
                 echo '<span class="wsf-checkbox"></span>';
             }
-            
+
             echo esc_html($value['name']);
             echo ' <span class="wsf-filter-count">(' . $value['count'] . ')</span>';
-            
-            if ($has_products || $is_active) {
+
+            if ($is_clickable) {
                 echo '</a>';
             } else {
                 echo '</span>';
             }
-            
+
             echo '</li>';
         }
-        
+
         echo '</ul>';
     }
     
@@ -349,13 +387,14 @@ class WSF_Filter_Widget extends WP_Widget {
         
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('display_type')); ?>">Тип отображения:</label>
-            <select class="widefat" 
-                    id="<?php echo esc_attr($this->get_field_id('display_type')); ?>" 
+            <select class="widefat"
+                    id="<?php echo esc_attr($this->get_field_id('display_type')); ?>"
                     name="<?php echo esc_attr($this->get_field_name('display_type')); ?>">
                 <option value="list" <?php selected($display_type, 'list'); ?>>Список</option>
                 <option value="dropdown" <?php selected($display_type, 'dropdown'); ?>>Выпадающий список</option>
             </select>
         </p>
+
         <?php
     }
     
@@ -364,7 +403,7 @@ class WSF_Filter_Widget extends WP_Widget {
         $instance['title'] = !empty($new_instance['title']) ? sanitize_text_field($new_instance['title']) : '';
         $instance['attribute'] = !empty($new_instance['attribute']) ? sanitize_text_field($new_instance['attribute']) : '';
         $instance['display_type'] = !empty($new_instance['display_type']) ? sanitize_text_field($new_instance['display_type']) : 'list';
-        
+
         return $instance;
     }
 }

@@ -149,11 +149,13 @@ class WSF_Admin {
         $category_display = isset($_POST['category_display']) ? $_POST['category_display'] : [];
         $category_available_attrs = isset($_POST['category_available_attributes']) ? $_POST['category_available_attributes'] : [];
         $category_badge_attrs = isset($_POST['category_badge_attributes']) ? $_POST['category_badge_attributes'] : [];
-        
+        $collapsed_attributes = isset($_POST['collapsed_attributes']) ? array_map('sanitize_key', (array) $_POST['collapsed_attributes']) : [];
+
         update_option('wsf_category_attributes', $category_attributes);
         update_option('wsf_category_display_settings', $category_display);
         update_option('wsf_category_available_attributes', $category_available_attrs);
         update_option('wsf_category_badge_attributes', $category_badge_attrs);
+        update_option('wsf_collapsed_attributes', $collapsed_attributes);
         
         wp_send_json_success(['message' => 'Settings saved']);
     }

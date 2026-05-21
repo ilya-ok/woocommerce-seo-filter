@@ -134,6 +134,7 @@ usort($configured_data, function($a, $b) {
     <div class="wsf-attribute-item" data-attr-slug="{{ATTR_SLUG}}">
         <span class="wsf-attribute-handle dashicons dashicons-menu"></span>
         <span class="wsf-attribute-name">{{ATTR_NAME}}</span>
+        {{COLLAPSED_CHECKBOX}}
         <input type="hidden" name="{{FIELD_NAME}}[{{CAT_SLUG}}][]" value="{{ATTR_SLUG}}">
         <button type="button" class="button-link wsf-remove-attribute-btn">
             <span class="dashicons dashicons-trash"></span>
@@ -241,12 +242,16 @@ jQuery(document).ready(function($) {
         
         const template = $('#wsf-attribute-item-template').html();
         const fieldName = attrType === 'filter' ? 'category_available_attributes' : 'category_badge_attributes';
-        
+        const collapsedCheckbox = attrType === 'filter'
+            ? '<label class="wsf-attr-collapsed-label"><input type="checkbox" class="wsf-attr-collapsed-checkbox" value="' + attrSlug + '"> скрыт по умолчанию</label>'
+            : '';
+
         const newAttr = template
             .replace(/\{\{ATTR_SLUG\}\}/g, attrSlug)
             .replace(/\{\{ATTR_NAME\}\}/g, attrName)
             .replace(/\{\{CAT_SLUG\}\}/g, categorySlug)
-            .replace(/\{\{FIELD_NAME\}\}/g, fieldName);
+            .replace(/\{\{FIELD_NAME\}\}/g, fieldName)
+            .replace(/\{\{COLLAPSED_CHECKBOX\}\}/g, collapsedCheckbox);
         
         $list.append(newAttr);
         
@@ -271,6 +276,13 @@ jQuery(document).ready(function($) {
         const display = {};
         const attributes = {};
         const badgeAttributes = {};
+        const collapsedAttrs = [];
+        $('.wsf-attr-collapsed-checkbox:checked').each(function() {
+            const val = $(this).val();
+            if (val && collapsedAttrs.indexOf(val) === -1) {
+                collapsedAttrs.push(val);
+            }
+        });
         
         // Сохраняем настройки главной страницы магазина
         const $shopItem = $('.wsf-shop-page-settings .wsf-category-item');
@@ -327,7 +339,8 @@ jQuery(document).ready(function($) {
                 category_attributes: categories,
                 category_display: display,
                 category_available_attributes: attributes,
-                category_badge_attributes: badgeAttributes
+                category_badge_attributes: badgeAttributes,
+                collapsed_attributes: collapsedAttrs
             },
             success: function(response) {
                 $button.prop('disabled', false);

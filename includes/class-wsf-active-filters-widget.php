@@ -346,7 +346,7 @@ class WSF_Active_Filters_Widget extends WP_Widget {
         echo '<div class="wsf-active-filters-list">';
 
         foreach ($active_filters as $filter) {
-            echo '<a href="' . esc_url($filter['remove_url']) . '" class="wsf-active-filter-item" title="Удалить фильтр">';
+            echo '<a href="' . esc_url($filter['remove_url']) . '" class="wsf-active-filter-item" data-attribute="' . esc_attr($filter['attribute']) . '" data-slug="' . esc_attr($filter['value']) . '" title="Удалить фильтр">';
             echo '<span class="wsf-filter-label">' . esc_html($filter['attribute_label']) . ':</span> ';
             echo '<span class="wsf-filter-value">' . esc_html($filter['value_name']) . '</span>';
             echo ' <span class="wsf-remove-icon">×</span>';
