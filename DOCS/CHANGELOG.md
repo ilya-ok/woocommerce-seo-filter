@@ -1,5 +1,17 @@
 # Changelog WooCommerce SEO Filter
 
+## 2026-05-22
+
+### Синхронизация wsf_collapsed_attributes на все сайты мультисайта
+
+**Проблема:** Настройка «скрыт по умолчанию» для фильтров (`wsf_collapsed_attributes`) не синхронизировалась на другие города через страницу SEO Filter Sync, т.к. отсутствовала в списке `$sync_options`.
+
+**Решение:** Добавлена опция `wsf_collapsed_attributes` в массив `$sync_options`.
+
+**Изменённый файл:** `includes/class-wsf-multisite-sync.php` — в массив `$sync_options` добавлена строка `'wsf_collapsed_attributes'`.
+
+---
+
 ## 2026-05-21
 
 ### Автоснятие нулевых активных значений при отключении фильтра

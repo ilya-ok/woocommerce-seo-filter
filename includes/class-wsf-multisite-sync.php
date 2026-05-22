@@ -25,7 +25,8 @@ class WSF_Multisite_Sync {
         'wsf_category_attributes',
         'wsf_category_display_settings',
         'wsf_category_available_attributes',
-        'wsf_category_badge_attributes'
+        'wsf_category_badge_attributes',
+        'wsf_collapsed_attributes'
     ];
 
     private function __construct() {
